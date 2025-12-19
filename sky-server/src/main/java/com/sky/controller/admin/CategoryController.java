@@ -53,4 +53,24 @@ public class CategoryController {
 
     }
 
+
+    @PutMapping
+    @ApiOperation("修改分类")
+    public Result update(@RequestBody CategoryDTO categoryDTO){
+
+        log.info("修改分类：{}",categoryDTO);
+        categoryService.update(categoryDTO);
+        return Result.success();
+    }
+
+    @PostMapping("/status/{status}")
+    @ApiOperation("启用禁用分类")
+    public Result startOrStop(@PathVariable Integer status,Long id){
+
+        log.info("启用禁用分类id：{}",id);
+        categoryService.startOrStop(status,id);
+        return Result.success();
+
+    }
+
 }

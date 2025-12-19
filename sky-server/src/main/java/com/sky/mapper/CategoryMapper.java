@@ -25,4 +25,7 @@ public interface CategoryMapper {
     //根据id删除菜品分类
     @Delete("delete from category where id = #{id}")
     void deleteById(Long id);
+
+    //更新分类
+    void update(Category category);
 }

@@ -2,6 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.sky.mapper.CategoryMapper">
+    
 
 
     <select id="pageQuery" resultType="com.sky.entity.Category">
@@ -16,6 +17,33 @@
         </where>
         order by sort asc,create_time desc
     </select>
+
+<!--所有字段都改，可以复用-->
+<!--set可以去除末尾多余的逗号-->
+    <update id="update">
+        update category 
+        <set>
+            <if test="type != null">
+                type = #{type},
+            </if>
+            <if test="name != null">
+                name = #{name},
+            </if>
+            <if test="sort != null">
+                sort = #{sort},
+            </if>
+            <if test="status != null">
+                status = #{status},
+            </if>
+            <if test="updateTime != null">
+                update_time = #{updateTime},
+            </if>
+            <if test="updateUser != null">
+                update_user = #{updateUser},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
 
 </mapper>
 
