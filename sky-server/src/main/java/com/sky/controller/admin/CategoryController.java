@@ -3,6 +3,7 @@ package com.sky.controller.admin;
 
 import com.sky.dto.CategoryDTO;
 import com.sky.dto.CategoryPageQueryDTO;
+import com.sky.entity.Category;
 import com.sky.result.PageResult;
 import com.sky.result.Result;
 import com.sky.service.CategoryService;
@@ -11,6 +12,8 @@ import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @Slf4j
@@ -70,6 +73,18 @@ public class CategoryController {
         log.info("启用禁用分类id：{}",id);
         categoryService.startOrStop(status,id);
         return Result.success();
+
+    }
+
+
+    @GetMapping("/list")
+    @ApiOperation("根据类型查询该类型下的所有菜品分类或套餐分类")
+    public Result<List<Category>> list(Integer type){
+
+        //用于添加菜品或套餐时选择该菜品或套餐属于哪个菜品分类或套餐分类
+        log.info("根据类型查询该类型下的所有菜品分类或套餐分类:{}",type);
+        List<Category> categoryList = categoryService.list(type);
+        return Result.success(categoryList);
 
     }
 

@@ -9,6 +9,8 @@ import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
 
+import java.util.List;
+
 @Mapper
 public interface CategoryMapper {
 
@@ -28,4 +30,8 @@ public interface CategoryMapper {
 
     //更新分类
     void update(Category category);
+
+    //用于添加菜品或套餐时选择该菜品或套餐属于哪个菜品分类或套餐分类
+    @Select("select * from category where type = #{type}")
+    List<Category> list(Integer type);
 }
