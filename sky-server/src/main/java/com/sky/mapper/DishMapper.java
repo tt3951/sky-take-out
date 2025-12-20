@@ -9,6 +9,8 @@ import com.sky.vo.DishVO;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
 
+import java.util.List;
+
 @Mapper
 public interface DishMapper {
 
@@ -24,4 +26,10 @@ public interface DishMapper {
 
     //菜品分页查询
     Page<DishVO> pageQuery(DishPageQueryDTO dishPageQueryDTO);
+
+    //根据ids查询菜品
+    List<Dish> selectByIds(List<Long> ids);
+
+    //根据ids删除菜品
+    void deleteBatch(List<Long> ids);
 }
