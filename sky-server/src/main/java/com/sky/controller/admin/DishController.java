@@ -76,4 +76,14 @@ public class DishController {
 
     }
 
+    @ApiOperation("修改菜品状态")
+    @PostMapping("/status/{status}")
+    public Result starOrStop(@PathVariable Integer status,Long id){
+
+        log.info("修改菜品状态为：{}",status == 1?"起售":"停售");
+        dishService.starOrStop(status,id);
+        return Result.success();
+
+    }
+
 }
