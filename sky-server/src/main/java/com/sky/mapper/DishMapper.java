@@ -32,4 +32,12 @@ public interface DishMapper {
 
     //根据ids删除菜品
     void deleteBatch(List<Long> ids);
+
+/*    //根据id查询菜品和其口味用于修改回显   这个方法不行
+    @Select("select d.*,f.* from dish d left join dish_flavor f on d.id = f.dish_id")
+    DishVO getByIdWithFlavor(Long id);*/
+
+    //根据id查询菜品
+    @Select("select * from dish where id = #{id}")
+    DishVO getById(Long id);
 }
