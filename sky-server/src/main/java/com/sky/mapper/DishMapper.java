@@ -2,6 +2,7 @@ package com.sky.mapper;
 
 import com.github.pagehelper.Page;
 import com.sky.annotation.AutoFill;
+import com.sky.constant.StatusConstant;
 import com.sky.dto.DishPageQueryDTO;
 import com.sky.entity.Dish;
 import com.sky.enumeration.OperationType;
@@ -40,4 +41,7 @@ public interface DishMapper {
     //根据id查询菜品
     @Select("select * from dish where id = #{id}")
     DishVO getById(Long id);
+
+    @AutoFill(value = OperationType.UPDATE)
+    void update(Dish dish);
 }
