@@ -20,6 +20,21 @@
             <if test="status != null">and s.status = #{status}</if>
         </where>
     </select>
+
+    <delete id="deleteBatch">
+        delete from setmeal where id in
+        <foreach collection="ids" item="id" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <select id="selectByids" resultType="com.sky.entity.Setmeal">
+        select * from setmeal where id in
+        <foreach collection="ids" item="id" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+    </select>
+
 </mapper>
 
 
