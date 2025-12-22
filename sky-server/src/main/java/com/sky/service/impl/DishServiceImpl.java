@@ -108,6 +108,7 @@ public class DishServiceImpl implements DishService {
 
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public void update(DishDTO dishDTO) {
 
         Dish dish = new Dish();
