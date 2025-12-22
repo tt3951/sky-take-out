@@ -10,6 +10,16 @@
         values (#{categoryId},#{name},#{price},#{status},#{description},#{image},
                 #{createTime},#{updateTime},#{createUser},#{updateUser})
     </insert>
+
+
+    <select id="pageQuery" resultType="com.sky.vo.SetmealVO">
+        select * from setmeal 
+        <where>
+            <if test="categoryId != null">and category_id = #{categoryId}</if>
+            <if test="name != null">and name = #{name}</if>
+            <if test="status != null">and status = #{status}</if>
+        </where>
+    </select>
 </mapper>
 
 
