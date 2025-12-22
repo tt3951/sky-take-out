@@ -42,6 +42,11 @@ public interface DishMapper {
     @Select("select * from dish where id = #{id}")
     DishVO getById(Long id);
 
+    //更新菜品
     @AutoFill(value = OperationType.UPDATE)
     void update(Dish dish);
+
+    //根据分类id查询菜品,用于添加套餐中菜品回显
+    @Select("select * from dish where category_id = #{categoryId}")
+    List<Dish> getByCategoryId(Long categoryId);
 }

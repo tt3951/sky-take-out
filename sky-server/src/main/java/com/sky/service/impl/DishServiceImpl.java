@@ -137,4 +137,11 @@ public class DishServiceImpl implements DishService {
         dish.setStatus(status);
         dishMapper.update(dish);
     }
+
+    @Override
+    public List<Dish> getByCategoryId(Long categoryId) {
+
+        List<Dish> dishList =  dishMapper.getByCategoryId(categoryId);
+        return dishList;
+    }
 }
