@@ -1,5 +1,6 @@
 package com.sky.entity;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -40,7 +41,6 @@ public class Setmeal implements Serializable {
     private String image;
 
     private LocalDateTime createTime;
-
     private LocalDateTime updateTime;
 
     private Long createUser;
