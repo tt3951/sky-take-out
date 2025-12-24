@@ -65,5 +65,15 @@ public class SetmealController {
 
     }
 
+    @PutMapping
+    @ApiOperation("修改套餐")
+    public Result updateWithSetmealDish(@RequestBody SetmealDTO setmealDTO){
+
+        log.info("修改套餐和其中的菜品：{}",setmealDTO);
+        setmealService.update(setmealDTO);
+        return Result.success();
+
+    }
+
 
 }
