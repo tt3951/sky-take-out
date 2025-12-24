@@ -6,9 +6,12 @@ import com.sky.constant.MessageConstant;
 import com.sky.constant.StatusConstant;
 import com.sky.dto.SetmealDTO;
 import com.sky.dto.SetmealPageQueryDTO;
+import com.sky.entity.Dish;
 import com.sky.entity.Setmeal;
 import com.sky.entity.SetmealDish;
 import com.sky.exception.DeletionNotAllowedException;
+import com.sky.exception.SetmealEnableFailedException;
+import com.sky.mapper.DishMapper;
 import com.sky.mapper.SetmealDishMapper;
 import com.sky.mapper.SetmealMapper;
 import com.sky.result.PageResult;
@@ -30,6 +33,8 @@ public class SetmealServiceImpl implements SetmealService {
     private SetmealMapper setmealMapper;
     @Autowired
     private SetmealDishMapper setmealDishMapper;
+    @Autowired
+    private DishMapper dishMapper;
 
 
     @Override
@@ -126,10 +131,18 @@ public class SetmealServiceImpl implements SetmealService {
     @Override
     public void StartOrStop(Integer status,Long id) {
 
+        if(status == 1){
+            //首先查询该套餐中的菜品有无停售状态
+            List<Dish> dishes = dishMapper.getBysetmealId(id);
+            dishes.forEach(dish -> {
+                if(dish.getStatus() == 0)
+                    throw new SetmealEnableFailedException(MessageConstant.SETMEAL_ENABLE_FAILED);
+            });
+        }
         Setmeal setmeal = Setmeal.builder()
                 .id(id)
-                        .status(status)
-                                .build();
+                .status(status)
+                .build();
         setmealMapper.update(setmeal);
     }
 }

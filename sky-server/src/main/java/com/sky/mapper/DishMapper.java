@@ -49,4 +49,8 @@ public interface DishMapper {
     //根据分类id查询菜品,用于添加套餐中菜品回显
     @Select("select * from dish where category_id = #{categoryId}")
     List<Dish> getByCategoryId(Long categoryId);
+
+    //根据setmeal_id,查询该套餐中菜品是否是停售状态
+    @Select("select d.* from setmeal_dish sd left join dish d on sd.dish_id = d.id where sd.setmeal_id = #{id}")
+    List<Dish> getBysetmealId(Long id);
 }
