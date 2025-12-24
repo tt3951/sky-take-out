@@ -75,5 +75,15 @@ public class SetmealController {
 
     }
 
+    @PostMapping("/status/{status}")
+    @ApiOperation("套餐启售、停售")
+    public Result StartOrStop(@PathVariable Integer status,Long id){
+
+        log.info("修改套餐状态为：{}",status == 1?"启售中":"打烊中");
+        setmealService.StartOrStop(status,id);
+        return Result.success();
+
+    }
+
 
 }
