@@ -8,6 +8,7 @@ import com.sky.entity.Setmeal;
 import com.sky.result.PageResult;
 import com.sky.result.Result;
 import com.sky.service.SetmealService;
+import com.sky.vo.DishItemVO;
 import com.sky.vo.SetmealVO;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -38,5 +39,16 @@ public class UserSetmealController {
         return Result.success(setmealList);
 
     }
+
+    @GetMapping("/dish/{id}")
+    @ApiOperation("根据套餐id查询菜品")
+    public Result<List<DishItemVO>> dishList(@PathVariable("id") Long id){
+
+        log.info("根据套餐id查询该套餐有多少菜品：{}",id);
+        List<DishItemVO> dishItemVOList = setmealService.getBySetmealId(id);
+        return Result.success(dishItemVOList);
+
+    }
+
 
 }
