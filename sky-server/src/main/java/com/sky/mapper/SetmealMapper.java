@@ -37,4 +37,8 @@ public interface SetmealMapper {
     //根据setmeal_id更新setmeal表
     @AutoFill(value = OperationType.UPDATE)
     void update(Setmeal setmeal);
+
+    //根据分类id查询该分类有多少启售的套餐用于回显
+    @Select("select * from setmeal where category_id = #{categoryId} and status = #{status}")
+    List<Setmeal> getByCategoryId(Long categoryId, Integer status);
 }

@@ -145,4 +145,13 @@ public class SetmealServiceImpl implements SetmealService {
                 .build();
         setmealMapper.update(setmeal);
     }
+
+
+    //c端-根据分类id查询该分类有多少套餐用于回显
+    @Override
+    public List<Setmeal> getByCategoryId(Long categoryId,Integer status) {
+
+        List<Setmeal> setmealList = setmealMapper.getByCategoryId(categoryId,status);
+        return setmealList;
+    }
 }
