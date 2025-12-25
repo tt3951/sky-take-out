@@ -144,4 +144,16 @@ public class DishServiceImpl implements DishService {
         List<Dish> dishList =  dishMapper.getByCategoryId(categoryId);
         return dishList;
     }
+
+    @Override
+    //c端接口，根据分类id查询其中包含的启售的菜品和口味
+    public List<DishVO> list(Long categoryId, Integer status) {
+
+         List<DishVO> dishVOList = dishMapper.getByCategoryIdAndStatus(categoryId,status);
+         dishVOList.forEach(dishVO -> {
+             List<DishFlavor> dishFlavorList = dishFlavorMapper.getByDishId(dishVO.getId());
+             dishVO.setFlavors(dishFlavorList);
+         });
+         return dishVOList;
+    }
 }

@@ -53,4 +53,8 @@ public interface DishMapper {
     //根据setmeal_id,查询该套餐中菜品是否是停售状态
     @Select("select d.* from setmeal_dish sd left join dish d on sd.dish_id = d.id where sd.setmeal_id = #{id}")
     List<Dish> getBysetmealId(Long id);
+
+    //c端根据分类id查询其中包含的启售的菜品
+    @Select("select * from dish where category_id = #{categoryId} and status = #{status}")
+    List<DishVO> getByCategoryIdAndStatus(Long categoryId, Integer status);
 }

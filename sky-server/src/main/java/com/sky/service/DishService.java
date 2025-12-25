@@ -27,4 +27,6 @@ public interface DishService {
     void starOrStop(Integer status,Long id);
 
     List<Dish> getByCategoryId(Long categoryId);
+
+    List<DishVO> list(Long categoryId, Integer status);
 }
