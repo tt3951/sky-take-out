@@ -12,9 +12,11 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Set;
 
 @RestController
 @RequestMapping("/admin/dish")
@@ -25,6 +27,8 @@ public class DishController {
 
     @Autowired
     private DishService dishService;
+    @Autowired
+    private RedisTemplate redisTemplate;
 
     @ApiOperation("新增菜品")
     @PostMapping
@@ -32,6 +36,8 @@ public class DishController {
 
         log.info("新增菜品：{}",dishDTO);
         dishService.save(dishDTO);
+        String key = "dish_" + dishDTO.getCategoryId();
+        redisTemplate.delete(key);
         return Result.success();
 
     }
@@ -53,6 +59,8 @@ public class DishController {
 
         log.info("根据id删除菜品及其口味：{}",ids);
         dishService.deleteWithFlavor(ids);
+        Set keys = redisTemplate.keys("dish_*");
+        redisTemplate.delete(keys);
         return Result.success();
 
     }
@@ -73,6 +81,8 @@ public class DishController {
 
         log.info("修改菜品：{}",dishDTO);
         dishService.update(dishDTO);
+        Set keys = redisTemplate.keys("dish_*");
+        redisTemplate.delete(keys);
         return Result.success();
 
     }
@@ -83,6 +93,8 @@ public class DishController {
 
         log.info("修改菜品状态为：{}",status == 1?"起售":"停售");
         dishService.starOrStop(status,id);
+        Set keys = redisTemplate.keys("dish_*");
+        redisTemplate.delete(keys);
         return Result.success();
 
     }

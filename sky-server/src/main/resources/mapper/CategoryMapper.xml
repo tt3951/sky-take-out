@@ -18,7 +18,7 @@
         order by sort asc,create_time desc
     </select>
 
-<!--所有字段都改，可以复用-->
+    <!--所有字段都改，可以复用-->
 <!--set可以去除末尾多余的逗号-->
     <update id="update">
         update category 
@@ -44,6 +44,15 @@
         </set>
         where id = #{id}
     </update>
+
+
+    <select id="list" resultType="com.sky.entity.Category">
+        select * from category
+        <where>
+            <if test="type != null"> and type = #{type}</if>
+        </where>
+    </select>
+
 
 </mapper>
 

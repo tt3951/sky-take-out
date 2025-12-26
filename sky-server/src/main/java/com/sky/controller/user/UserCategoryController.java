@@ -30,7 +30,7 @@ public class UserCategoryController {
     @ApiOperation("查询分类")
     public Result<List<Category>> list(Integer type){
 
-        log.info("根据分类查询是菜品还是套餐：{}",type == 2?"套餐":"菜品");
+//        log.info("根据分类查询是菜品还是套餐：{}",type == 2?"套餐":"菜品");
         List<Category> categoryList = categoryService.list(type);
         return Result.success(categoryList);
 
