@@ -31,4 +31,10 @@ public class AddressBookServiceImpl implements AddressBookService {
         addressBook.setIsDefault(0);
         addressBookMapper.insert(addressBook);
     }
+
+    @Override
+    public AddressBook getById(Long id) {
+
+        return addressBookMapper.getById(id);
+    }
 }

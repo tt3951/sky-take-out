@@ -23,4 +23,7 @@ public interface AddressBookMapper {
             "                #{districtCode}, #{districtName}, #{detail}, #{label}, #{isDefault})")
     void insert(AddressBook addressBook);
 
+
+    @Select("select * from address_book where id = #{id}")
+    AddressBook getById(Long id);
 }
