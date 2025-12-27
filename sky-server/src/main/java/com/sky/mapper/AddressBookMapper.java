@@ -10,8 +10,7 @@ import java.util.List;
 public interface AddressBookMapper {
 
 
-    @Select("select * from address_book where user_id = #{userId}")
-    List<AddressBook> list(Long userId);
+    List<AddressBook> list(AddressBook addressBook);
 
 
     @Insert("insert into address_book" +

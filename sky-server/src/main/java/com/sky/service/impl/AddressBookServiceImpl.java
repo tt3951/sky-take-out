@@ -18,9 +18,8 @@ public class AddressBookServiceImpl implements AddressBookService {
     private AddressBookMapper addressBookMapper;
 
     @Override
-    public List<AddressBook> list() {
-        Long userId = BaseContext.getCurrentId();
-        List<AddressBook> addressBookList = addressBookMapper.list(userId);
+    public List<AddressBook> list(AddressBook addressBook) {
+        List<AddressBook> addressBookList = addressBookMapper.list(addressBook);
         return addressBookList;
     }
 

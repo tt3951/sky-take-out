@@ -2,6 +2,7 @@ package com.sky.controller.user;
 
 
 import com.sky.annotation.AutoFill;
+import com.sky.context.BaseContext;
 import com.sky.entity.AddressBook;
 import com.sky.result.Result;
 import com.sky.service.AddressBookService;
@@ -28,7 +29,10 @@ public class AddressBookController {
     public Result<List<AddressBook>> list(){
 
         log.info("查询所有地址信息");
-        List<AddressBook> addressBookList = addressBookService.list();
+        Long userId = BaseContext.getCurrentId();
+        AddressBook addressBook = new AddressBook();
+        addressBook.setUserId(userId);
+        List<AddressBook> addressBookList = addressBookService.list(addressBook);
         return Result.success(addressBookList);
 
     }
@@ -85,6 +89,21 @@ public class AddressBookController {
     public Result deleteById(Long id) {
         addressBookService.deleteById(id);
         return Result.success();
+    }
+
+    @GetMapping("/default")
+    @ApiOperation("查询默认地址")
+    public Result<AddressBook> getDefault(){
+
+        log.info("查询默认地址用于下单界面回显，复用list");
+        AddressBook addressBook = new AddressBook();
+        addressBook.setUserId(BaseContext.getCurrentId());
+        addressBook.setIsDefault(1);
+        List<AddressBook> addressBooks = addressBookService.list(addressBook);
+        if(addressBooks != null && addressBooks.size() == 1){
+            return Result.success(addressBooks.get(0));
+        }
+        return Result.error("没有查询到默认地址");
     }
 
 
