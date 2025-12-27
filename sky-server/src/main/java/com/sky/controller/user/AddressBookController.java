@@ -9,9 +9,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -33,6 +31,15 @@ public class AddressBookController {
         List<AddressBook> addressBookList = addressBookService.list();
         return Result.success(addressBookList);
 
+    }
+
+    @PostMapping
+    @ApiOperation("新增地址")
+    public Result save(@RequestBody AddressBook addressBook){
+
+        log.info("新增地址：{}",addressBook);
+        addressBookService.save(addressBook);
+        return Result.success();
     }
 
 

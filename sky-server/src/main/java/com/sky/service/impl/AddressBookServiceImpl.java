@@ -23,4 +23,12 @@ public class AddressBookServiceImpl implements AddressBookService {
         List<AddressBook> addressBookList = addressBookMapper.list(userId);
         return addressBookList;
     }
+
+
+    @Override
+    public void save(AddressBook addressBook) {
+        addressBook.setUserId(BaseContext.getCurrentId());
+        addressBook.setIsDefault(0);
+        addressBookMapper.insert(addressBook);
+    }
 }
