@@ -56,6 +56,10 @@ public class AddressBookServiceImpl implements AddressBookService {
         addressBook.setIsDefault(1);
         addressBookMapper.update(addressBook);
 
+    }
 
+    @Override
+    public void deleteById(Long id) {
+        addressBookMapper.deleteById(id);
     }
 }
