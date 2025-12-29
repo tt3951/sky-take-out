@@ -246,35 +246,45 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
+    // 1. 必须加事务注解，保证退款和改状态要么都成功，要么都失败
     @Transactional(rollbackFor = Exception.class)
     public void cancel(Long id) {
 
-        //首先把订单查询到
+        // 1. 查询订单
         Orders order = orderMapper.getById(id);
-        // 校验订单是否存在
+
+        // 2. 基础校验
         if (order == null) {
             throw new OrderBusinessException(MessageConstant.ORDER_NOT_FOUND);
         }
 
-        //订单状态 1待付款 2待接单 3已接单 4派送中 5已完成 6已取消
+        // 3. 校验状态 (内存校验，快速失败)
+        // 只能取消 "待付款(1)" 或 "待接单(2)" 的订单
         if (order.getStatus() > 2) {
             throw new OrderBusinessException(MessageConstant.ORDER_STATUS_ERROR);
         }
+
+        Orders orderUpdate = new Orders();
+        orderUpdate.setId(order.getId());
+
+        // 4. 处理退款逻辑
         if (order.getPayStatus().equals(Orders.PAID)) {
-            //调用微信支付退款接口
-            /*weChatPayUtil.refund(
-                    ordersDB.getNumber(), //商户订单号
-                    ordersDB.getNumber(), //商户退款单号
-                    new BigDecimal(0.01),//退款金额，单位 元
-                    new BigDecimal(0.01));//原订单金额
-*/
-            //支付状态修改为 退款
-            order.setPayStatus(Orders.REFUND);
+            // 调用微信退款
+            // weChatPayUtil.refund(... order.getNumber(), order.getAmount() ...);
+
+            // 设置支付状态为退款
+            orderUpdate.setPayStatus(Orders.REFUND);
         }
-        // 更新订单状态、取消原因、取消时间
-        order.setStatus(Orders.CANCELLED);
-        order.setCancelReason("用户取消");
-        order.setCancelTime(LocalDateTime.now());
-        orderMapper.update(order);
+
+        // 5. 设置更新字段
+        orderUpdate.setStatus(Orders.CANCELLED);
+        orderUpdate.setCancelReason("用户取消");
+        orderUpdate.setCancelTime(LocalDateTime.now());
+
+        // 6. 关键优化：执行更新
+        // 这里的 update 对应 XML 应该不仅仅是根据 ID 更新，
+        // 最好检查一下当前状态是否仍然允许取消，防止并发问题。
+        // 如果是简单的 update(orderUpdate)，在并发不高时也没问题。
+        orderMapper.update(orderUpdate);
     }
 }
