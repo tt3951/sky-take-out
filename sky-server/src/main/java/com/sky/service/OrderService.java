@@ -30,4 +30,6 @@ public interface OrderService {
     PageResult page(OrdersPageQueryDTO ordersPageQueryDTO);
 
     OrderVO details(Long id);
+
+    void cancel(Long id);
 }

@@ -64,4 +64,13 @@ public class UserOrderController {
 
     }
 
+    @PutMapping("/cancel/{id}")
+    public Result cancel(@PathVariable Long id){
+
+        log.info("根据id取消订单：{}",id);
+        orderService.cancel(id);
+        return Result.success();
+
+    }
+
 }
