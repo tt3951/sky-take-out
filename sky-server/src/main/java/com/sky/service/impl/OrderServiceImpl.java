@@ -287,4 +287,34 @@ public class OrderServiceImpl implements OrderService {
         // 如果是简单的 update(orderUpdate)，在并发不高时也没问题。
         orderMapper.update(orderUpdate);
     }
+
+    @Override
+    public void repetition(Long id) {
+
+        //先根据order_id把订单明细查出来
+        List<OrderDetail> orderDetails = orderDetailMapper.getByOrderId(id);
+        List<ShoppingCart> shoppingCartList = new ArrayList<>();
+        if(orderDetails != null && orderDetails.size()>0){
+            orderDetails.forEach(orderDetail -> {
+                ShoppingCart shoppingCart = new ShoppingCart();
+                BeanUtils.copyProperties(orderDetail,shoppingCart,"id");
+                shoppingCart.setUserId(BaseContext.getCurrentId());
+                shoppingCart.setCreateTime(LocalDateTime.now());
+                shoppingCartList.add(shoppingCart);
+            });
+        }
+
+        /*// 将订单详情对象转换为购物车对象
+        List<ShoppingCart> shoppingCartList = orderDetailList.stream().map(x -> {
+            ShoppingCart shoppingCart = new ShoppingCart();
+
+            // 将原订单详情里面的菜品信息重新复制到购物车对象中
+            BeanUtils.copyProperties(x, shoppingCart, "id");
+            shoppingCart.setUserId(userId);
+            shoppingCart.setCreateTime(LocalDateTime.now());
+
+            return shoppingCart;
+        }).collect(Collectors.toList());*/
+        shoppingCartMapper.insertBatch(shoppingCartList);
+    }
 }
