@@ -398,4 +398,24 @@ public class OrderServiceImpl implements OrderService {
         }
 
     }
+
+    @Override
+    public void adminCancel(OrdersCancelDTO ordersCancelDTO) {
+
+        //首先根据order_id查出订单
+        Orders orders = orderMapper.getById(ordersCancelDTO.getId());
+        if(orders == null &&orders.getStatus()<4){
+            throw new OrderBusinessException(MessageConstant.ORDER_STATUS_ERROR);
+        }else {
+            Orders ordersUpdate = new Orders();
+            ordersUpdate.setId(orders.getId());
+            ordersUpdate.setStatus(Orders.CANCELLED);
+            ordersUpdate.setRejectionReason(ordersCancelDTO.getCancelReason());
+            ordersUpdate.setCancelTime(LocalDateTime.now());
+            if(orders.getPayStatus() == 1){ //已支付
+                ordersUpdate.setPayStatus(2);
+            }
+            orderMapper.update(ordersUpdate);
+        }
+    }
 }
