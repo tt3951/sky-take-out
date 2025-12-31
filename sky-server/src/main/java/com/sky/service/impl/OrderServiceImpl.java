@@ -16,10 +16,7 @@ import com.sky.mapper.*;
 import com.sky.result.PageResult;
 import com.sky.service.OrderService;
 import com.sky.utils.WeChatPayUtil;
-import com.sky.vo.OrderPaymentVO;
-import com.sky.vo.OrderReportVO;
-import com.sky.vo.OrderSubmitVO;
-import com.sky.vo.OrderVO;
+import com.sky.vo.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,6 +29,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 
@@ -344,5 +342,27 @@ public class OrderServiceImpl implements OrderService {
             orderVOList.add(orderVO);
         });
         return new PageResult(page.getTotal(),orderVOList);
+    }
+
+    @Override
+    public OrderStatisticsVO statistics() {
+
+        List<Map<String,Object>> list = orderMapper.countStatus(); //map: status=待接单 num=10
+        OrderStatisticsVO orderStatisticsVO = new OrderStatisticsVO();
+        list.forEach(stringObjectMap -> {
+            int num = ((Number) stringObjectMap.get("num")).intValue();
+            if(stringObjectMap.containsValue("待接单") ){
+                orderStatisticsVO.setToBeConfirmed(num);
+            }
+            if(stringObjectMap.containsValue("已接单") ){
+                orderStatisticsVO.setConfirmed(num);
+            }
+            if(stringObjectMap.containsValue("派送中") ){
+                orderStatisticsVO.setDeliveryInProgress(num);
+            }
+        });
+
+        return orderStatisticsVO;
+
     }
 }
