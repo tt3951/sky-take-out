@@ -85,5 +85,85 @@ public class ReportServiceImpl implements ReportService {
     }
 
 
+//------------------------------------------------------------------
+    //方法二 直接用对象封装数据库查询结果 dbList 里的对象是 TurnOverCount(orderDate, turnover)
+    // List<TurnOverCount> dbList = orderMapper.getTurnoverStatistics(beginTime, endTime);
+    // 先把数据库结果转成 Map<日期, 金额>
+    //Map<LocalDate, Double> dataMap = dbList.stream()
+    //        .collect(Collectors.toMap(TurnOverCount::getOrderDate, TurnOverCount::getTurnover));
 
+    //List<Double> turnoverList = new ArrayList<>();
+
+    // 遍历全量日期，直接去 Map 里取
+    //for (LocalDate date : dateList) {
+    // 如果 Map 里有这个日期，就取值；如果没有，就默认给 0.0
+    //    Double amount = dataMap.getOrDefault(date, 0.0);
+    //    turnoverList.add(amount);
+
+    /*这段代码是 Java 8 Stream API 的高阶用法，它的作用是：
+
+    把一个“对象列表 (List)” 转换成一个更方便查找的 “键值对映射 (Map)”。
+
+    具体到你的场景，就是把数据库查出来的 [对象1, 对象2...] 变成 Map<日期, 金额> 的格式。
+
+            1. 代码拆解
+            Java
+
+    Map<LocalDate, Double> dataMap = dbList.stream()
+            .collect(Collectors.toMap(
+                    TurnOverCount::getOrderDate,  // 1. 指定谁做 Key (键)
+                    TurnOverCount::getTurnover    // 2. 指定谁做 Value (值)
+            ));
+dbList.stream(): 把 list 变成一条流水线，准备一个接一个地处理里面的元素。
+
+            .collect(...): “收集器”。意思是流水线处理完了，要把结果打包成什么样子？这里我们要打包成一个 Map。
+
+            Collectors.toMap(Key, Value): 这是核心转换逻辑，需要你告诉它两个规则：
+
+    Key Mapper (第一个参数)：TurnOverCount::getOrderDate
+
+    意思说：“用对象的 orderDate 属性作为 Map 的 Key。”
+
+            (等价于 lambda 写法: x -> x.getOrderDate())
+
+    Value Mapper (第二个参数)：TurnOverCount::getTurnover
+
+    意思说：“用对象的 turnover 属性作为 Map 的 Value。”
+
+            (等价于 lambda 写法: x -> x.getTurnover())
+
+            2. 数据变换演示
+    转换前 (dbList)： 它是一个列表，想找“1月3号”的数据必须遍历整个列表。
+
+    JSON
+
+[
+    { "orderDate": "2025-01-01", "turnover": 100.0 },
+    { "orderDate": "2025-01-03", "turnover": 200.0 }
+]
+    转换后 (dataMap)： 它是一个字典，你可以直接问 map.get("2025-01-03") 瞬间拿到金额。
+
+    JSON
+
+    {
+        "2025-01-01": 100.0,
+            "2025-01-03": 200.0
+    }
+3. 为什么要这么做？
+    在你后面的“补零”逻辑中，你需要拿着全量日期（比如 1号、2号、3号...）去查数据库结果：
+
+    如果不转 Map (用 List)： 你需要写双重 for 循环。每处理一个日期，都要遍历一次 dbList 去寻找匹配项。效率低，代码嵌套深。
+
+    转了 Map 后： 你可以直接用 map.get(date)。效率极高（O(1)），代码也更清晰。
+
+            ⚠️ 重要风险提示
+    虽然这段代码很帅，但有两个常见的坑：
+
+    Key 重复会报错： 如果 dbList 里有两条记录是同一个日期（比如有两条 1月1号的数据），toMap 会直接报 IllegalStateException: Duplicate key。
+
+    在你当前的 SQL 中使用了 GROUP BY date，所以数据库保证了日期唯一，这里是安全的。
+
+    Value 为 null 会报错： 如果 TurnOverCount 对象里的 turnover 属性是 null，Collectors.toMap 会报 NullPointerException。
+
+    建议确认你的 SQL sum(amount) 是否可能返回 null（通常如果没有订单，count是0，但 sum 可能是 null，取决于数据库）。如果可能为 null，建议在 Value Mapper 里处理一下： x -> x.getTurnover() == null ? 0.0 : x.getTurnover()。*/
 }
