@@ -41,4 +41,8 @@ public interface OrderMapper {
 
     @Select("select * from orders where status = #{status} and order_time < #{time}")
     List<Orders> getByStatusAndOrderTime(Integer status, LocalDateTime time);
+
+
+
+    List<Map<String, Object>> countTurnover(LocalDateTime beginTime, LocalDateTime endTime);
 }

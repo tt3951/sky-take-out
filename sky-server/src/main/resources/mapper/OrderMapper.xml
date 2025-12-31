@@ -78,6 +78,10 @@
                      when status = 7 then '退款' end) status,count(*) num from orders group by status;
 
     </select>
+    <select id="countTurnover" resultType="java.util.Map">
+        select DATE (order_time) order_date,sum(orders.amount) turnover from orders where order_time between #{beginTime} and #{endTime} and status = 5
+        group by DATE (order_time)
+    </select>
 
 </mapper>
 
