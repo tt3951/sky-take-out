@@ -42,7 +42,7 @@
                 delivery_time = #{deliveryTime}
             </if>
         </set>
-        where id = #{id} and status &lt;=2
+        where id = #{id}
     </update>
     <select id="page" resultType="com.sky.entity.Orders">
         select * from orders

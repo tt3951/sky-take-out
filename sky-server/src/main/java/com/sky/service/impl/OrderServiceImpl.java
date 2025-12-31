@@ -5,9 +5,7 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.sky.constant.MessageConstant;
 import com.sky.context.BaseContext;
-import com.sky.dto.OrdersPageQueryDTO;
-import com.sky.dto.OrdersPaymentDTO;
-import com.sky.dto.OrdersSubmitDTO;
+import com.sky.dto.*;
 import com.sky.entity.*;
 import com.sky.exception.AddressBookBusinessException;
 import com.sky.exception.OrderBusinessException;
@@ -363,6 +361,41 @@ public class OrderServiceImpl implements OrderService {
         });
 
         return orderStatisticsVO;
+
+    }
+
+    @Override
+    public void confirm(OrdersConfirmDTO ordersConfirmDTO) {
+
+        Orders orders = new Orders();
+        orders.setId(ordersConfirmDTO.getId());
+        orders.setStatus(Orders.CONFIRMED);
+        orderMapper.update(orders);
+    }
+
+
+    @Override
+    public void rejection(OrdersRejectionDTO ordersRejectionDTO) {
+
+        //首先根据order_id把订单查出来
+        Orders orders = orderMapper.getById(ordersRejectionDTO.getId());
+        if(orders == null && orders.getStatus()>2){
+
+            throw new OrderBusinessException(MessageConstant.ORDER_STATUS_ERROR);
+
+        }else {
+
+            Orders ordersUpdate = new Orders();
+            ordersUpdate.setId(orders.getId());
+            ordersUpdate.setStatus(Orders.CANCELLED);
+            ordersUpdate.setRejectionReason(ordersRejectionDTO.getRejectionReason());
+            ordersUpdate.setCancelTime(LocalDateTime.now());
+            //在看订单的pay_status
+            if(orders.getPayStatus() == 1){ //已支付
+                ordersUpdate.setPayStatus(2);
+            }
+            orderMapper.update(ordersUpdate);
+        }
 
     }
 }
