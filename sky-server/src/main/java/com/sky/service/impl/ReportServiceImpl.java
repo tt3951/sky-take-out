@@ -174,49 +174,67 @@ dbList.stream(): 把 list 变成一条流水线，准备一个接一个地处理
 
     @Override
     public UserReportVO getUserStatistics(LocalDate begin, LocalDate end) {
-
-        //获得日期集合
+        // -------------------------------------------------------------
+        // 1. 生成日期列表 (x轴)
+        // -------------------------------------------------------------
         List<LocalDate> dateList = new ArrayList<>();
         dateList.add(begin);
-        while(!begin.equals(end)){
+        while (!begin.equals(end)){
             begin = begin.plusDays(1);
             dateList.add(begin);
         }
-        LocalDateTime beginTime = LocalDateTime.of(dateList.get(0),LocalTime.MIN);
-        LocalDateTime endTime = LocalDateTime.of(end,LocalTime.MAX);
 
-        //首先查在begin之前的用户总量
-        Integer currentUser = userMapper.getCurrentUser(beginTime);
+        // -------------------------------------------------------------
+        // 2. 数据库查询 (仅需2次，代替原本的几十次)
+        // -------------------------------------------------------------
+        // A. 查出这段时间之前的总用户数（作为累加的起点）
+        Integer currentTotalUsers = userMapper.getCurrentUser(LocalDateTime.of(dateList.get(0), LocalTime.MIN));
 
-        //在查询每一天的用户增量
-        List<Map<String,Object>> mapList = userMapper.getUserPlus(beginTime,endTime);//每一行map: date=12-10 count = 10
-        //把每一行map: date=12-10 count = 10转化为 key=12-10 value=10
-        Map<String,Integer> newUserMap = new HashMap<>();
-        for (Map<String, Object> row : mapList) {
-            String date = row.get("date").toString();
+        // B. 查出这段时间内每一天的新增用户数 (Map结果类似: "2025-01-01"=5, "2025-01-03"=2)
+        LocalDateTime beginTime = LocalDateTime.of(dateList.get(0), LocalTime.MIN);
+        LocalDateTime endTime = LocalDateTime.of(dateList.get(dateList.size() - 1), LocalTime.MAX);
+
+        List<Map<String, Object>> userCountList = userMapper.getUserPlus(beginTime, endTime);
+
+        // -------------------------------------------------------------
+        // 3. 数据处理 (List 转 Map 方便查找)
+        // -------------------------------------------------------------
+        // 将数据库结果转为 Map<日期String, 新增数量Integer>
+        Map<String, Integer> newUserMap = new HashMap<>();
+        for (Map<String, Object> row : userCountList) {
+            String dateKey = row.get("date").toString(); // 数据库出来的 date 通常可以直接 toString
+            // 注意类型转换，COUNT结果可能是 Long
             Integer count = ((Number) row.get("count")).intValue();
-            newUserMap.put(date,count);
+            newUserMap.put(dateKey, count);
         }
+
+        // -------------------------------------------------------------
+        // 4. 循环填充数据 (内存计算)
+        // -------------------------------------------------------------
         List<Integer> newUserList = new ArrayList<>();
         List<Integer> totalUserList = new ArrayList<>();
+
         for (LocalDate date : dateList) {
-
             String dateStr = date.toString();
-            Integer newUser = newUserMap.getOrDefault(dateStr,0);
-            newUserList.add(newUser);
-            currentUser += newUser;
+
+            // A. 获取当天新增 (查Map，没查到就是0)
+            Integer newUser = newUserMap.getOrDefault(dateStr, 0);
+
+            // B. 计算当天总数 (累加逻辑：当前总数 = 之前的总数 + 今天新增)
+            currentTotalUsers += newUser;
 
             newUserList.add(newUser);
-            totalUserList.add(currentUser);
+            totalUserList.add(currentTotalUsers);
         }
 
+        // -------------------------------------------------------------
+        // 5. 封装返回
+        // -------------------------------------------------------------
         return UserReportVO.builder()
-                .dateList(StringUtils.join(dateList,","))
-                .newUserList(StringUtils.join(newUserList,","))
-                .totalUserList(StringUtils.join(totalUserList,","))
+                .dateList(StringUtils.join(dateList, ","))
+                .newUserList(StringUtils.join(newUserList, ","))
+                .totalUserList(StringUtils.join(totalUserList, ","))
                 .build();
-
-
     }
 }
 
