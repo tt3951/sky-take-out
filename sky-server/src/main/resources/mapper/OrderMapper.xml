@@ -82,6 +82,14 @@
         select DATE (order_time) order_date,sum(orders.amount) turnover from orders where order_time between #{beginTime} and #{endTime} and status = 5
         group by DATE (order_time)
     </select>
+    <select id="countDay" resultType="java.util.Map">
+        select DATE (order_time) date, count(id) count from orders
+        <where>
+            order_time between #{beginTime} and #{endTime}
+            <if test="status != null ">and status = #{status}</if>
+        </where>
+        group by DATE (order_time)
+    </select>
 
 </mapper>
 

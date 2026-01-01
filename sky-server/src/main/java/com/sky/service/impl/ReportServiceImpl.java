@@ -4,6 +4,7 @@ import com.sky.entity.Orders;
 import com.sky.mapper.OrderMapper;
 import com.sky.mapper.UserMapper;
 import com.sky.service.ReportService;
+import com.sky.vo.OrderReportVO;
 import com.sky.vo.TurnoverReportVO;
 import com.sky.vo.UserReportVO;
 import lombok.extern.slf4j.Slf4j;
@@ -234,6 +235,65 @@ dbList.stream(): 把 list 变成一条流水线，准备一个接一个地处理
                 .dateList(StringUtils.join(dateList, ","))
                 .newUserList(StringUtils.join(newUserList, ","))
                 .totalUserList(StringUtils.join(totalUserList, ","))
+                .build();
+    }
+
+
+    @Override
+    public OrderReportVO orderStatistics(LocalDate begin, LocalDate end) {
+
+        List<LocalDate> dateList = new ArrayList<>();
+        dateList.add(begin);
+        while (!begin.equals(end)){
+            begin = begin.plusDays(1);
+            dateList.add(begin);
+        }
+
+        LocalDateTime beginTime = LocalDateTime.of(dateList.get(0),LocalTime.MIN);
+        LocalDateTime endTime = LocalDateTime.of(end,LocalTime.MAX);
+        //查出每天订单数
+        List<Map<String,Object>> ordersMap = orderMapper.countDay(beginTime,endTime,null);
+        //查出每天有效订单数
+        List<Map<String,Object>> validordersMap = orderMapper.countDay(beginTime,endTime,5);
+        Map<String,Integer> map1 = new HashMap<>();
+        Map<String,Integer> map2 = new HashMap<>();
+        for (Map<String, Object> row : ordersMap) {
+
+            String date = row.get("date").toString();
+            Integer count = ((Number) row.get("count")).intValue();
+            map1.put(date,count);
+        }
+        for (Map<String, Object> row : validordersMap) {
+
+            String date = row.get("date").toString();
+            Integer count = ((Number) row.get("count")).intValue();
+            map2.put(date,count);
+        }
+        Integer totalOrders = 0;
+        Integer validTotalOrders = 0;
+        List<Integer> ordersList = new ArrayList<>();
+        List<Integer> validOrdersList = new ArrayList<>();
+        for (LocalDate date : dateList) {
+
+            String datestr = date.toString();
+            Integer orders = map1.getOrDefault(datestr,0);
+            Integer valid = map2.getOrDefault(datestr,0);
+            totalOrders += orders;
+            validTotalOrders += valid;
+            ordersList.add(orders);
+            validOrdersList.add(valid);
+        }
+        Double orderCompletionRate = 0.0;
+        if (totalOrders != 0) {
+            orderCompletionRate = validTotalOrders.doubleValue() / totalOrders;
+        }
+        return OrderReportVO.builder()
+                .orderCompletionRate(orderCompletionRate)
+                .orderCountList(StringUtils.join(ordersList,","))
+                .dateList(StringUtils.join(dateList,","))
+                .totalOrderCount(totalOrders)
+                .validOrderCount(validTotalOrders)
+                .validOrderCountList(StringUtils.join(validOrdersList,","))
                 .build();
     }
 }

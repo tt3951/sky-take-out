@@ -45,4 +45,7 @@ public interface OrderMapper {
 
 
     List<Map<String, Object>> countTurnover(LocalDateTime beginTime, LocalDateTime endTime);
+
+    List<Map<String, Object>> countDay(LocalDateTime beginTime, LocalDateTime endTime,Integer status);
+
 }
