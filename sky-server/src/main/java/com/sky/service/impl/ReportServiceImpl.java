@@ -2,8 +2,10 @@ package com.sky.service.impl;
  
 import com.sky.entity.Orders;
 import com.sky.mapper.OrderMapper;
+import com.sky.mapper.UserMapper;
 import com.sky.service.ReportService;
 import com.sky.vo.TurnoverReportVO;
+import com.sky.vo.UserReportVO;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,6 +24,8 @@ public class ReportServiceImpl implements ReportService {
  
     @Autowired
     private OrderMapper orderMapper;
+    @Autowired
+    private UserMapper userMapper;
  
     /**
      * 根据时间区间统计营业额
@@ -166,4 +170,54 @@ dbList.stream(): 把 list 变成一条流水线，准备一个接一个地处理
     Value 为 null 会报错： 如果 TurnOverCount 对象里的 turnover 属性是 null，Collectors.toMap 会报 NullPointerException。
 
     建议确认你的 SQL sum(amount) 是否可能返回 null（通常如果没有订单，count是0，但 sum 可能是 null，取决于数据库）。如果可能为 null，建议在 Value Mapper 里处理一下： x -> x.getTurnover() == null ? 0.0 : x.getTurnover()。*/
+
+
+    @Override
+    public UserReportVO getUserStatistics(LocalDate begin, LocalDate end) {
+
+        //获得日期集合
+        List<LocalDate> dateList = new ArrayList<>();
+        dateList.add(begin);
+        while(!begin.equals(end)){
+            begin = begin.plusDays(1);
+            dateList.add(begin);
+        }
+        LocalDateTime beginTime = LocalDateTime.of(dateList.get(0),LocalTime.MIN);
+        LocalDateTime endTime = LocalDateTime.of(end,LocalTime.MAX);
+
+        //首先查在begin之前的用户总量
+        Integer currentUser = userMapper.getCurrentUser(beginTime);
+
+        //在查询每一天的用户增量
+        List<Map<String,Object>> mapList = userMapper.getUserPlus(beginTime,endTime);//每一行map: date=12-10 count = 10
+        //把每一行map: date=12-10 count = 10转化为 key=12-10 value=10
+        Map<String,Integer> newUserMap = new HashMap<>();
+        for (Map<String, Object> row : mapList) {
+            String date = row.get("date").toString();
+            Integer count = ((Number) row.get("count")).intValue();
+            newUserMap.put(date,count);
+        }
+        List<Integer> newUserList = new ArrayList<>();
+        List<Integer> totalUserList = new ArrayList<>();
+        for (LocalDate date : dateList) {
+
+            String dateStr = date.toString();
+            Integer newUser = newUserMap.getOrDefault(dateStr,0);
+            newUserList.add(newUser);
+            currentUser += newUser;
+
+            newUserList.add(newUser);
+            totalUserList.add(currentUser);
+        }
+
+        return UserReportVO.builder()
+                .dateList(StringUtils.join(dateList,","))
+                .newUserList(StringUtils.join(newUserList,","))
+                .totalUserList(StringUtils.join(totalUserList,","))
+                .build();
+
+
+    }
 }
+
+

@@ -6,6 +6,10 @@ import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
 
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Map;
+
 @Mapper
 public interface UserMapper {
 
@@ -18,4 +22,10 @@ public interface UserMapper {
 
     @Select("select * from user where id = #{userId}")
     User getById(Long userId);
+
+    @Select("select count(id) from user where create_time < #{beginTime}")
+    Integer getCurrentUser(LocalDateTime beginTime);
+
+
+    List<Map<String, Object>> getUserPlus(LocalDateTime beginTime, LocalDateTime endTime);
 }

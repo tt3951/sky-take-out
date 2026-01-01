@@ -8,6 +8,10 @@
         insert into user(openid, name, phone, sex, id_number, avatar, create_time) VALUES
                     (#{openid},#{name},#{phone},#{sex},#{idNumber},#{avatar},#{createTime})
     </insert>
+    <select id="getUserPlus" resultType="java.util.Map">
+        select DATE (create_time) date,count(id) count from user
+        where create_time between #{beginTime} and #{endTime} group by DATE (create_time)
+    </select>
 </mapper>
 
 
