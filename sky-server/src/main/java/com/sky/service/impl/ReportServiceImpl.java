@@ -1,16 +1,23 @@
 package com.sky.service.impl;
  
+import com.sky.dto.GoodsSalesDTO;
 import com.sky.entity.Orders;
+import com.sky.mapper.OrderDetailMapper;
 import com.sky.mapper.OrderMapper;
 import com.sky.mapper.UserMapper;
+import com.sky.result.Result;
 import com.sky.service.ReportService;
 import com.sky.vo.OrderReportVO;
+import com.sky.vo.SalesTop10ReportVO;
 import com.sky.vo.TurnoverReportVO;
 import com.sky.vo.UserReportVO;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.GetMapping;
+
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -18,7 +25,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
- 
+import java.util.stream.Collectors;
+
 @Service
 @Slf4j
 public class ReportServiceImpl implements ReportService {
@@ -26,8 +34,12 @@ public class ReportServiceImpl implements ReportService {
     @Autowired
     private OrderMapper orderMapper;
     @Autowired
+    private OrderDetailMapper orderDetailMapper;
+    @Autowired
     private UserMapper userMapper;
- 
+    @Autowired
+    private ReportService reportService;
+
     /**
      * 根据时间区间统计营业额
      * @param begin
@@ -92,10 +104,17 @@ public class ReportServiceImpl implements ReportService {
 
 //------------------------------------------------------------------
     //方法二 直接用对象封装数据库查询结果 dbList 里的对象是 TurnOverCount(orderDate, turnover)
-    // List<TurnOverCount> dbList = orderMapper.getTurnoverStatistics(beginTime, endTime);
+//     List<TurnOverCount> dbList = orderMapper.getTurnoverStatistics(beginTime, endTime);
     // 先把数据库结果转成 Map<日期, 金额>
     //Map<LocalDate, Double> dataMap = dbList.stream()
     //        .collect(Collectors.toMap(TurnOverCount::getOrderDate, TurnOverCount::getTurnover));
+
+//    Map<LocalDate,Double> dateMap = new HashMap<>();
+//    for(TurnOverCount row : dblist){
+//        date = row.get???;
+//        money = row.get???;
+//        dateMap.put(date,money);
+//    }
 
     //List<Double> turnoverList = new ArrayList<>();
 
@@ -295,6 +314,34 @@ dbList.stream(): 把 list 变成一条流水线，准备一个接一个地处理
                 .validOrderCount(validTotalOrders)
                 .validOrderCountList(StringUtils.join(validOrdersList,","))
                 .build();
+    }
+
+    @Override
+    public SalesTop10ReportVO getTop10(LocalDate begin, LocalDate end) {
+
+        LocalDateTime beginTime = LocalDateTime.of(begin,LocalTime.MIN);
+        LocalDateTime endTime = LocalDateTime.of(end,LocalTime.MAX);
+        List<GoodsSalesDTO> goodsSalesDTOList = orderDetailMapper.getTop10(beginTime,endTime);
+
+        //方法一
+//        List<String> names = new ArrayList<>();
+//        for (GoodsSalesDTO goodsSalesDTO : goodsSalesDTOList) {
+//            names.add(goodsSalesDTO.getName());
+//        }
+        //方法二
+        List<String> names = goodsSalesDTOList.stream().map(GoodsSalesDTO::getName).collect(Collectors.toList());
+        List<Integer> numbers = goodsSalesDTOList.stream().map(GoodsSalesDTO::getNumber).collect(Collectors.toList());
+
+        String namelist = StringUtils.join(names,",");
+        String numberlist = StringUtils.join(numbers,",");
+
+        return SalesTop10ReportVO.builder()
+                .nameList(namelist)
+                .numberList(numberlist)
+                .build();
+
+
+
     }
 }
 
