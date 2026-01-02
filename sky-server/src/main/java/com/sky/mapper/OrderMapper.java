@@ -48,4 +48,6 @@ public interface OrderMapper {
 
     List<Map<String, Object>> countDay(LocalDateTime beginTime, LocalDateTime endTime,Integer status);
 
+
+    Integer countByMap(Map map);
 }

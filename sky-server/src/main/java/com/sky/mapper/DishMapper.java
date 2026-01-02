@@ -11,6 +11,7 @@ import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
 
 import java.util.List;
+import java.util.Map;
 
 @Mapper
 public interface DishMapper {
@@ -57,4 +58,11 @@ public interface DishMapper {
     //c端根据分类id查询其中包含的启售的菜品
     @Select("select * from dish where category_id = #{categoryId} and status = #{status}")
     List<DishVO> getByCategoryIdAndStatus(Long categoryId, Integer status);
+
+    /**
+     * 根据条件统计菜品数量
+     * @param map
+     * @return
+     */
+    Integer countByMap(Map map);
 }
